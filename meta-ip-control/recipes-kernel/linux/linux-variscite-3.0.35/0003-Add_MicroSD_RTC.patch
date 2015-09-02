@@ -1,0 +1,358 @@
+diff --git a/arch/arm/mach-mx6/board-mx6q_var_som.c b/arch/arm/mach-mx6/board-mx6q_var_som.c
+index c869038..22f983e 100644
+--- a/arch/arm/mach-mx6/board-mx6q_var_som.c
++++ b/arch/arm/mach-mx6/board-mx6q_var_som.c
+@@ -93,8 +93,13 @@
+ #define VAR_SOM_MIPICSI_PWN	    IMX_GPIO_NR(3, 13)
+ #define VAR_SOM_MIPICSI_RST     IMX_GPIO_NR(4, 10)
+ 
++#ifdef CONFIG_VAR_ORIGIN
+ #define VAR_SOM_SD2_CD          IMX_GPIO_NR(4, 14)
+ #define VAR_SOM_SD2_WP          IMX_GPIO_NR(4, 15)
++#else
++#define VAR_SOM_SD2_CD          IMX_GPIO_NR(1, 16)
++#define VAR_SOM_SD2_WP          -1
++#endif
+ 
+ #define VAR_SOM_PCIE_DIS_B      IMX_GPIO_NR(3, 21)
+ #define VAR_SOM_PCIE_WAKE_B     IMX_GPIO_NR(3, 22)
+@@ -471,6 +476,7 @@ static struct mxc_audio_platform_data wm8962_data = {
+ 	.clock_enable = wm8962_clk_enable,
+ };
+ 
++#ifdef CONFIG_VAR_ORIGIN
+ /*
+  * MIPI CSI2 CAM
+  */
+@@ -516,6 +522,7 @@ static struct fsl_mxc_camera_platform_data mipi_csi2_data = {
+ 	.io_init = mx6q_mipi_sensor_io_init,
+ 	.pwdn = mx6q_mipi_powerdown,
+ };
++#endif
+ 
+ static struct imxi2c_platform_data mx6q_var_som_i2c_data = {
+ 	.bitrate = 100000,
+@@ -526,10 +533,16 @@ static struct imxi2c_platform_data mx6q_var_som_i2c_400k_data = {
+ };
+ 
+ static struct i2c_board_info mxc_i2c0_board_info[] __initdata = {
++#ifdef CONFIG_VAR_ORIGIN
+ 	{
+ 		I2C_BOARD_INFO("ov5640_mipi", 0x3c),
+ 		.platform_data = (void *)&mipi_csi2_data,
+ 	},
++#endif
++	{
++		I2C_BOARD_INFO("pcf85063", 0x51),
++		.type		= "pcf85063",
++	},
+ };
+ 
+ static struct i2c_board_info mxc_i2c1_board_info[] __initdata = {
+@@ -1125,7 +1138,7 @@ static void __init mx6_var_som_board_init(void)
+ 	if (1 == caam_enabled)
+ 		imx6q_add_imx_caam();
+ 
+-	imx6q_add_imx_i2c(0, &mx6q_var_som_i2c_data);
++	imx6q_add_imx_i2c(0, &mx6q_var_som_i2c_400k_data);
+ 	imx6q_add_imx_i2c(1, &mx6q_var_som_i2c_data);
+ 	imx6q_add_imx_i2c(2, &mx6q_var_som_i2c_400k_data);
+ 
+diff --git a/arch/arm/mach-mx6/board-mx6solo_var_som.h b/arch/arm/mach-mx6/board-mx6solo_var_som.h
+index e62e763..4f3cccb 100644
+--- a/arch/arm/mach-mx6/board-mx6solo_var_som.h
++++ b/arch/arm/mach-mx6/board-mx6solo_var_som.h
+@@ -84,9 +84,12 @@ static iomux_v3_cfg_t mx6dl_var_som_pads[] = {
+ 	MX6DL_PAD_GPIO_3__CCM_CLKO2,		
+ 		
+ 	/* SDMMC2 CD/WP */
++#ifdef CONFIG_VAR_ORIGIN
+ 	MX6DL_PAD_KEY_COL4__GPIO_4_14,
+ 	MX6DL_PAD_KEY_ROW4__GPIO_4_15,
+-	
++#else
++	MX6DL_PAD_SD1_DAT0__GPIO_1_16,
++#endif
+ 	/* USBOTG ID pin */
+ 	MX6DL_PAD_GPIO_4__GPIO_1_4,
+ 
+@@ -153,8 +156,11 @@ static iomux_v3_cfg_t mx6dl_var_som_pads[] = {
+ 
+ 	MX6DL_PAD_ENET_RXD0__OSC32K_32K_OUT, /* Slow clock */
+ 
++#ifdef CONFIG_VAR_ORIGIN
+ 	MX6DL_PAD_KEY_COL2__GPIO_4_10, /* camera reset */ 
+ 	MX6DL_PAD_EIM_DA13__GPIO_3_13, /* camera power down */
++#endif
++
+ 	/* Can Bus */
+ 	MX6DL_PAD_GPIO_7__CAN1_TXCAN,	/* GPIO_7 - CAN1_TX */
+ 	MX6DL_PAD_GPIO_8__CAN1_RXCAN,	/* GPIO_8 - CAN1_RX */
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 6e48613..5827c8c 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -259,6 +259,14 @@ config RTC_DRV_PCF8563
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-pcf8563.
+ 
++config RTC_DRV_PCF85063
++	tristate "nxp PCF85063"
++	help
++	  If you say yes here you get support for the PCF85063 RTC chip
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-pcf85063.
++
+ config RTC_DRV_PCF8583
+ 	tristate "Philips PCF8583"
+ 	help
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 90d014d..f9b401b 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -72,6 +72,7 @@ obj-$(CONFIG_RTC_DRV_NUC900)	+= rtc-nuc900.o
+ obj-$(CONFIG_RTC_DRV_OMAP)	+= rtc-omap.o
+ obj-$(CONFIG_RTC_DRV_PCAP)	+= rtc-pcap.o
+ obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
++obj-$(CONFIG_RTC_DRV_PCF85063)	+= rtc-pcf85063.o
+ obj-$(CONFIG_RTC_DRV_PCF8583)	+= rtc-pcf8583.o
+ obj-$(CONFIG_RTC_DRV_PCF2123)	+= rtc-pcf2123.o
+ obj-$(CONFIG_RTC_DRV_PCF50633)	+= rtc-pcf50633.o
+diff --git a/drivers/rtc/rtc-pcf85063.c b/drivers/rtc/rtc-pcf85063.c
+new file mode 100644
+index 0000000..001d900
+--- /dev/null
++++ b/drivers/rtc/rtc-pcf85063.c
+@@ -0,0 +1,231 @@
++/*
++ * An I2C driver for the PCF85063 RTC
++ * Copyright 2014 Rose Technology
++ *
++ * Author: Søren Andersen <san@rosetechnology.dk>
++ * Maintainers: http://www.nslu2-linux.org/
++ *
++ * based on the other drivers in this same directory.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++#include <linux/i2c.h>
++#include <linux/bcd.h>
++#include <linux/rtc.h>
++#include <linux/module.h>
++
++#define DRV_VERSION "0.0.1"
++
++#define PCF85063_REG_CTRL1		0x00 /* status */
++#define PCF85063_REG_CTRL2		0x01
++
++#define PCF85063_REG_SC			0x04 /* datetime */
++#define PCF85063_REG_MN			0x05
++#define PCF85063_REG_HR			0x06
++#define PCF85063_REG_DM			0x07
++#define PCF85063_REG_DW			0x08
++#define PCF85063_REG_MO			0x09
++#define PCF85063_REG_YR			0x0A
++
++#define PCF85063_MO_C			0x80 /* century */
++
++static struct i2c_driver pcf85063_driver;
++
++struct pcf85063 {
++	struct rtc_device *rtc;
++	int c_polarity;	/* 0: MO_C=1 means 19xx, otherwise MO_C=1 means 20xx */
++	int voltage_low; /* incicates if a low_voltage was detected */
++};
++
++/*
++ * In the routines that deal directly with the pcf85063 hardware, we use
++ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
++ */
++static int pcf85063_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	struct pcf85063 *pcf85063 = i2c_get_clientdata(client);
++	unsigned char buf[13] = { PCF85063_REG_CTRL1 };
++
++	struct i2c_msg msgs[] = {
++		{/* setup read ptr */
++			.addr = client->addr,
++			.len = 1,
++			.buf = buf
++		},
++		{/* read status + date */
++			.addr = client->addr,
++			.flags = I2C_M_RD,
++			.len = 13,
++			.buf = buf
++		},
++	};
++	/* read registers */
++	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __func__);
++		return -EIO;
++	}
++
++	tm->tm_sec = bcd2bin(buf[PCF85063_REG_SC] & 0x7F);
++	tm->tm_min = bcd2bin(buf[PCF85063_REG_MN] & 0x7F);
++	tm->tm_hour = bcd2bin(buf[PCF85063_REG_HR] & 0x3F); /* rtc hr 0-23 */
++	tm->tm_mday = bcd2bin(buf[PCF85063_REG_DM] & 0x3F);
++	tm->tm_wday = buf[PCF85063_REG_DW] & 0x07;
++	tm->tm_mon = bcd2bin(buf[PCF85063_REG_MO] & 0x1F) - 1; /* rtc mn 1-12 */
++	tm->tm_year = bcd2bin(buf[PCF85063_REG_YR]);
++	if (tm->tm_year < 70)
++		tm->tm_year += 100;	/* assume we are in 1970...2069 */
++	/* detect the polarity heuristically. see note above. */
++	pcf85063->c_polarity = (buf[PCF85063_REG_MO] & PCF85063_MO_C) ?
++		(tm->tm_year >= 100) : (tm->tm_year < 100);
++
++	/* the clock can give out invalid datetime, but we cannot return
++	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
++	 */
++	if (rtc_valid_tm(tm) < 0)
++		dev_err(&client->dev, "retrieved date/time is not valid.\n");
++
++	return 0;
++}
++
++static int pcf85063_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	int i = 0, err = 0;
++	unsigned char buf[11];
++
++	/* Control & status */
++	buf[PCF85063_REG_CTRL1] = 0;
++	buf[PCF85063_REG_CTRL2] = 5;
++
++	/* hours, minutes and seconds */
++	buf[PCF85063_REG_SC] = bin2bcd(tm->tm_sec) & 0x7F;
++
++	buf[PCF85063_REG_MN] = bin2bcd(tm->tm_min);
++	buf[PCF85063_REG_HR] = bin2bcd(tm->tm_hour);
++
++	/* Day of month, 1 - 31 */
++	buf[PCF85063_REG_DM] = bin2bcd(tm->tm_mday);
++
++	/* Day, 0 - 6 */
++	buf[PCF85063_REG_DW] = tm->tm_wday & 0x07;
++
++	/* month, 1 - 12 */
++	buf[PCF85063_REG_MO] = bin2bcd(tm->tm_mon + 1);
++
++	/* year and century */
++	buf[PCF85063_REG_YR] = bin2bcd(tm->tm_year % 100);
++
++	/* write register's data */
++	for (i = 0; i < sizeof(buf); i++) {
++		unsigned char data[2] = { i, buf[i] };
++
++		err = i2c_master_send(client, data, sizeof(data));
++		if (err != sizeof(data)) {
++			dev_err(&client->dev, "%s: err=%d addr=%02x, data=%02x\n",
++					__func__, err, data[0], data[1]);
++			return -EIO;
++		}
++	}
++
++	return 0;
++}
++
++static int pcf85063_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	return pcf85063_get_datetime(to_i2c_client(dev), tm);
++}
++
++static int pcf85063_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	return pcf85063_set_datetime(to_i2c_client(dev), tm);
++}
++
++static const struct rtc_class_ops pcf85063_rtc_ops = {
++	.read_time	= pcf85063_rtc_read_time,
++	.set_time	= pcf85063_rtc_set_time
++};
++
++static int pcf85063_probe(struct i2c_client *client,
++				const struct i2c_device_id *id)
++{
++	struct pcf85063 *pcf85063;
++	int err = 0;
++
++	dev_dbg(&client->dev, "%s\n", __func__);
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
++		return -ENODEV;
++
++	pcf85063 = devm_kzalloc(&client->dev, sizeof(struct pcf85063),
++				GFP_KERNEL);
++	if (!pcf85063)
++		return -ENOMEM;
++
++	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
++
++	i2c_set_clientdata(client, pcf85063);
++
++	pcf85063->rtc = rtc_device_register(pcf85063_driver.driver.name,
++				&client->dev,
++				&pcf85063_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(pcf85063->rtc)) {
++		err = PTR_ERR(pcf85063->rtc);
++		goto exit_kfree;
++	}
++
++	return 0;
++
++exit_kfree:
++	kfree(pcf85063);
++
++	return err;
++}
++
++static const struct i2c_device_id pcf85063_id[] = {
++	{ "pcf85063", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, pcf85063_id);
++
++#ifdef CONFIG_OF
++static const struct of_device_id pcf85063_of_match[] = {
++	{ .compatible = "nxp,pcf85063" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, pcf85063_of_match);
++#endif
++
++static struct i2c_driver pcf85063_driver = {
++	.driver		= {
++		.name	= "rtc-pcf85063",
++		.owner	= THIS_MODULE,
++#ifdef CONFIG_OF
++		.of_match_table = of_match_ptr(pcf85063_of_match),
++#endif
++	},
++	.probe		= pcf85063_probe,
++	.id_table	= pcf85063_id,
++};
++
++
++static int __init pcf85063_init(void)
++{
++	return i2c_add_driver(&pcf85063_driver);
++}
++
++static void __exit pcf85063_exit(void)
++{
++	i2c_del_driver(&pcf85063_driver);
++}
++
++//module_i2c_driver(pcf85063_driver);
++
++MODULE_AUTHOR("Søren Andersen <san@rosetechnology.dk>");
++MODULE_DESCRIPTION("PCF85063 RTC driver");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(DRV_VERSION);
++
++module_init(pcf85063_init);
++module_exit(pcf85063_exit);

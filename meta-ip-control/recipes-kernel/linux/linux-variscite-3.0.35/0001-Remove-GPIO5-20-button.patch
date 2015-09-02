@@ -1,0 +1,14 @@
+diff --git a/arch/arm/mach-mx6/board-mx6q_var_som.c b/arch/arm/mach-mx6/board-mx6q_var_som.c
+index c869038..a55494a 100644
+--- a/arch/arm/mach-mx6/board-mx6q_var_som.c
++++ b/arch/arm/mach-mx6/board-mx6q_var_som.c
+@@ -1222,7 +1222,9 @@ static void __init mx6_var_som_board_init(void)
+ 	imx6q_add_busfreq();
+ 	imx6q_add_pcie(&mx6_var_som_pcie_data);
+ 
++#ifdef CONFIG_VAR_ORIGIN
+ 	imx6q_add_device_buttons();
++#endif
+ 
+ 	phy_register_fixup_for_uid(VAR_SOM_KSZ9031_PHY_ID, VAR_SOM_KSZ9031_PHY_MASK,
+ 				   var_som_ksz9031_phy_fixup);

@@ -1,0 +1,402 @@
+diff --git a/arch/arm/mach-mx6/board-mx6_h.c b/arch/arm/mach-mx6/board-mx6_h.c
+index 40a6bf4..cc2c1d8 100644
+--- a/arch/arm/mach-mx6/board-mx6_h.c
++++ b/arch/arm/mach-mx6/board-mx6_h.c
+@@ -85,8 +85,8 @@
+ struct gpio board_gpios[] __initdata = {
+ #define GP_LVDS0_12V_5V_BL_SELECT		IMX_GPIO_NR(4, 5)
+ 	{.label = "lvds0_12_5_BL",	.gpio = IMX_GPIO_NR(4, 5),	.flags = 0},	/* GPIO_19 */
+-#define GP_RGB_LVDS1_12V_5V_BL_SELECT		IMX_GPIO_NR(1, 7)
+-	{.label = "rgb_lvds1_12_5_BL",	.gpio = IMX_GPIO_NR(1, 7),	.flags = 0},	/* GPIO_7 */
++//#define GP_RGB_LVDS1_12V_5V_BL_SELECT		IMX_GPIO_NR(1, 7)
++//	{.label = "rgb_lvds1_12_5_BL",	.gpio = IMX_GPIO_NR(1, 7),	.flags = 0},	/* GPIO_7 */
+ #define GP_12V_POWER_EN				IMX_GPIO_NR(4, 20)
+ 	{.label = "12V_en",		.gpio = IMX_GPIO_NR(4, 20),	.flags = 0},	/* DI0_PIN4 */
+ 	{.label = "gp_led",		.gpio = IMX_GPIO_NR(2, 7),	.flags = 0},	/* GPIO_3 */
+@@ -96,8 +96,8 @@ struct gpio board_gpios[] __initdata = {
+ 	{.label = "rgb_mirror_horizontal", .gpio = IMX_GPIO_NR(2, 25),	.flags = GPIOF_HIGH},	/* EIM_OE */
+ #define GP_USB_HUB_RESET			IMX_GPIO_NR(7, 12)
+ 	{.label = "usb_hub_reset",	.gpio = IMX_GPIO_NR(7, 12),	.flags = 0},	/* EIM_OE */
+-#define GP_AMP_ENABLE				IMX_GPIO_NR(1, 8)
+-	{.label = "speaker_enable",	.gpio = IMX_GPIO_NR(1, 8),	.flags = 0},	/* EIM_OE */
++//#define GP_AMP_ENABLE				IMX_GPIO_NR(1, 8)
++//	{.label = "speaker_enable",	.gpio = IMX_GPIO_NR(1, 8),	.flags = 0},	/* EIM_OE */
+ 
+ #define GP_WL_EN				IMX_GPIO_NR(6, 7)	/* NANDF_CLE - active high */
+ 	{.label = "wl_en",		.gpio = IMX_GPIO_NR(6, 7),		.flags = 0},		/* GPIO6[7]: NANDF_CLE - active high */
+diff --git a/arch/arm/mach-mx6/board-mx6_s.c b/arch/arm/mach-mx6/board-mx6_s.c
+index 0689066..99fe562 100644
+--- a/arch/arm/mach-mx6/board-mx6_s.c
++++ b/arch/arm/mach-mx6/board-mx6_s.c
+@@ -470,6 +470,7 @@ static void camera_reset(int power_gp, int poweroff_level, int reset_gp, int res
+ }
+ 
+ 
++#if 0
+ #if defined(CONFIG_MXC_CAMERA_OV5642) || defined(CONFIG_MXC_CAMERA_OV5642_MODULE)
+ /*
+  * GPIO_6	GPIO[1]:6	(ov5642) - J5 - CSI0 power down
+@@ -517,6 +518,7 @@ static struct fsl_mxc_camera_platform_data ov5642_data = {
+ };
+ 
+ #endif
++#endif
+ 
+ static struct i2c_board_info mxc_i2c1_board_info[] __initdata = {
+ };
+@@ -525,12 +527,14 @@ static struct i2c_board_info mxc_i2c2_board_info[] __initdata = {
+ 	{
+ 		I2C_BOARD_INFO("mxc_hdmi_i2c", 0x50),
+ 	},
++#if 0
+ #if defined(CONFIG_MXC_CAMERA_OV5642) || defined(CONFIG_MXC_CAMERA_OV5642_MODULE)
+ 	{
+ 		I2C_BOARD_INFO("ov5642", 0x3c),
+ 		.platform_data = (void *)&ov5642_data,
+ 	},
+ #endif
++#endif
+ };
+ 
+ static void usbotg_vbus(bool on)
+diff --git a/arch/arm/mach-mx6/board-mx6q_var_som.c b/arch/arm/mach-mx6/board-mx6q_var_som.c
+index 8ac0a6b..8d81d5f 100644
+--- a/arch/arm/mach-mx6/board-mx6q_var_som.c
++++ b/arch/arm/mach-mx6/board-mx6q_var_som.c
+@@ -78,6 +78,9 @@
+ #include "cpu_op-mx6.h"
+ #include "board-mx6q_var_som.h"
+ #include "board-mx6solo_var_som.h"
++#if defined(CONFIG_MU509)
++#include <linux/mu509.h>
++#endif
+ 
+ /*
+  * Un comment if you would like to build uImage for SD-Card that support Android partition table.
+@@ -108,6 +111,12 @@
+ #define VAR_SOM_SD2_WP          -1
+ #endif
+ 
++#if defined(CONFIG_MU509)
++#define VAR_SOM_MU509_POWER     IMX_GPIO_NR(3, 28)
++#define VAR_SOM_MU509_WAKEUPIN  IMX_GPIO_NR(3, 26)
++#define VAR_SOM_MU509_WAKEUPOUT  IMX_GPIO_NR(3, 27)
++#endif
++
+ #define VAR_SOM_PCIE_DIS_B      IMX_GPIO_NR(3, 21)
+ #define VAR_SOM_PCIE_WAKE_B     IMX_GPIO_NR(3, 22)
+ #define VAR_SOM_PCIE_PWR_EN     IMX_GPIO_NR(2, 12)
+@@ -366,11 +375,27 @@ static const struct imxuart_platform_data mx6_var_som_uart2_data __initconst = {
+ 	.dma_req_tx = MX6Q_DMA_REQ_UART3_TX,
+ };
+ 
++static const struct imxuart_platform_data mx6_var_som_uart3_data __initconst = {
++	.flags      = IMXUART_HAVE_RTSCTS,
++	.dma_req_rx = MX6Q_DMA_REQ_UART4_RX,
++	.dma_req_tx = MX6Q_DMA_REQ_UART4_TX,
++
++};
++
++static const struct imxuart_platform_data mx6_var_som_uart4_data __initconst = {
++	.flags      = IMXUART_HAVE_RTSCTS,
++	.dma_req_rx = MX6Q_DMA_REQ_UART5_RX,
++	.dma_req_tx = MX6Q_DMA_REQ_UART5_TX,
++};
++
++
+ static inline void mx6q_var_som_init_uart(void)
+ {
+ 	imx6q_add_imx_uart(0, NULL);
+ 	imx6q_add_imx_uart(1, &mx6_var_som_uart1_data);
+ 	imx6q_add_imx_uart(2, &mx6_var_som_uart2_data);
++	imx6q_add_imx_uart(3, &mx6_var_som_uart3_data);
++	imx6q_add_imx_uart(4, &mx6_var_som_uart4_data);
+ }
+ 
+ static int mx6q_var_som_fec_phy_init(struct phy_device *phydev)
+@@ -449,6 +474,38 @@ static struct spi_board_info mx6_var_som_spi_device[] __initdata = {
+ 	},
+ };
+ 
++#if defined(CONFIG_MU509)
++static int mu509_io_init(void)
++{
++	return 0;
++}
++
++static int mu509_io_deinit(void)
++{
++	return 0;
++}
++
++
++static struct mu509_data mu509_info = {
++	.io_init = mu509_io_init,
++  	.io_deinit = mu509_io_deinit,
++	.bp_power = VAR_SOM_MU509_POWER,
++	.bp_power_active_low = 1,
++	.bp_reset = -1,//RK29_PIN0_PB3,
++	.bp_reset_active_low = 1,
++	.bp_wakeup_ap = VAR_SOM_MU509_WAKEUPOUT,//RK29_PIN0_PC2,
++	.ap_wakeup_bp = VAR_SOM_MU509_WAKEUPIN,//RK29_PIN0_PB0,
++};
++struct platform_device device_mu509 = {
++		.name = "mu509",
++		.id = -1,
++		.dev		= {
++				.platform_data = &mu509_info,
++		}
++};
++#endif
++
++
+ static void spi_device_init(void)
+ {
+ 	if (var_lcd_index != VAR_LCD_CTW6120) {
+@@ -1106,6 +1163,8 @@ static void __init mx6_var_som_board_init(void)
+ 	int rate;
+ 	struct platform_device *voutdev;
+ 
++
++
+ 	if (cpu_is_mx6q())
+ 		mxc_iomux_v3_setup_multiple_pads(mx6q_var_som_pads,
+ 				ARRAY_SIZE(mx6q_var_som_pads));
+@@ -1125,6 +1184,11 @@ static void __init mx6_var_som_board_init(void)
+ 	gp_reg_id = var_som_dvfscore_data.reg_id;
+ 	soc_reg_id = var_som_dvfscore_data.soc_id;
+ 
++	//Set red at start
++	gpio_request(IMX_GPIO_NR(6, 0), "RED_LED");
++	gpio_direction_output(IMX_GPIO_NR(6, 0), 1);
++	gpio_export(IMX_GPIO_NR(6, 0),1);
++
+ 	mx6q_var_som_init_uart();
+ 
+ 	/*
+@@ -1159,7 +1223,7 @@ static void __init mx6_var_som_board_init(void)
+ 		for (i = 0; i < 2 && i < ARRAY_SIZE(var_som_fb_data); i++)
+ 			imx6q_add_ipuv3fb(i, &var_som_fb_data[i]);
+ 
+-	imx6q_add_flexcan0(&mx6q_var_som_flexcan0_pdata);
++	//TDE imx6q_add_flexcan0(&mx6q_var_som_flexcan0_pdata);
+ 
+ 
+ 	imx6q_add_vdoa();
+@@ -1177,6 +1241,7 @@ static void __init mx6_var_som_board_init(void)
+ 					     DMA_MEMORY_EXCLUSIVE));
+ 	}
+ 
++
+ 	if (1 == caam_enabled)
+ 		imx6q_add_imx_caam();
+ 
+@@ -1203,6 +1268,26 @@ static void __init mx6_var_som_board_init(void)
+ 
+ 	gpio_request(VAR_SOM_BACKLIGHT_EN, "ldb-backlight");
+ 	gpio_direction_output(VAR_SOM_BACKLIGHT_EN, 1);
++	gpio_export(VAR_SOM_BACKLIGHT_EN,0);
++
++	/*TDE For GSM Test*/
++	gpio_request(IMX_GPIO_NR(3, 26), "GSM");
++	gpio_direction_output(IMX_GPIO_NR(3, 26), 0);
++	gpio_export(IMX_GPIO_NR(3, 26),0);
++
++	/*TDE For UART*/
++	gpio_request(IMX_GPIO_NR(4, 7), "RS_RXEN");
++	gpio_direction_output(IMX_GPIO_NR(4, 7), 1);
++	gpio_export(IMX_GPIO_NR(4, 7),1);
++	gpio_request(IMX_GPIO_NR(1, 8), "RS_TXEN");
++	gpio_direction_output(IMX_GPIO_NR(1, 8), 1);
++	gpio_export(IMX_GPIO_NR(1, 8),1);
++	gpio_request(IMX_GPIO_NR(4, 6), "RS_ON");
++	gpio_direction_output(IMX_GPIO_NR(4, 6), 1);
++	gpio_export(IMX_GPIO_NR(4, 6),1);
++	gpio_request(IMX_GPIO_NR(1, 7), "RS485/232#");
++	gpio_direction_output(IMX_GPIO_NR(1, 7), 0);
++	gpio_export(IMX_GPIO_NR(1, 7),1);
+ 
+ 	/* SPI */
+ 	imx6q_add_ecspi(0, &mx6q_var_som_spi0_data);
+@@ -1276,6 +1361,9 @@ static void __init mx6_var_som_board_init(void)
+ 	pcie_3v3_reset();
+ #endif
+ 
++#if defined(CONFIG_MU509)
++	platform_device_register(&device_mu509)
++#endif
+ 	imx6q_add_busfreq();
+ 	imx6q_add_pcie(&mx6_var_som_pcie_data);
+ 
+@@ -1288,6 +1376,17 @@ static void __init mx6_var_som_board_init(void)
+ 	imx6q_add_perfmon(0);
+ 	imx6q_add_perfmon(1);
+ 	imx6q_add_perfmon(2);
++
++	//Set green as start ok
++	gpio_request(IMX_GPIO_NR(6, 2), "GREEN_LED");
++//	gpio_direction_output(IMX_GPIO_NR(6, 0), 0);
++	gpio_direction_output(IMX_GPIO_NR(6, 2), 0);
++	gpio_export(IMX_GPIO_NR(6, 2),1);
++
++	gpio_request(IMX_GPIO_NR(5, 31), "BLUE_LED");
++	gpio_direction_output(IMX_GPIO_NR(5, 31), 0);
++	gpio_export(IMX_GPIO_NR(5, 31),1);
++
+ }
+ 
+ extern void __iomem *twd_base;
+diff --git a/arch/arm/mach-mx6/board-mx6solo_var_som.h b/arch/arm/mach-mx6/board-mx6solo_var_som.h
+index 2a91183..3c928be 100644
+--- a/arch/arm/mach-mx6/board-mx6solo_var_som.h
++++ b/arch/arm/mach-mx6/board-mx6solo_var_som.h
+@@ -91,6 +91,13 @@ static iomux_v3_cfg_t mx6dl_var_som_pads[] = {
+ 	MX6DL_PAD_EIM_D25__UART3_RXD,
+ 	MX6DL_PAD_EIM_D24__UART3_TXD,
+ 
++	/* UART5 for RS232 port */
++	MX6DL_PAD_KEY_ROW1__UART5_RXD,
++	MX6DL_PAD_KEY_COL1__UART5_TXD,
++	MX6DL_PAD_KEY_COL4__UART5_RTS,
++	MX6DL_PAD_KEY_ROW4__UART5_CTS,
++
++
+ 	/* Camera MCLK */
+ 	MX6DL_PAD_GPIO_3__CCM_CLKO2,		
+ 		
+@@ -177,8 +184,10 @@ static iomux_v3_cfg_t mx6dl_var_som_pads[] = {
+ #endif
+ 
+ 	/* Can Bus */
++#ifdef CONFIG_VAR_ORIGIN
+ 	MX6DL_PAD_GPIO_7__CAN1_TXCAN,	/* GPIO_7 - CAN1_TX */
+ 	MX6DL_PAD_GPIO_8__CAN1_RXCAN,	/* GPIO_8 - CAN1_RX */
++#endif
+ };
+ 
+ static iomux_v3_cfg_t mx6dl_gpmi_nand[] __initdata = {
+diff --git a/drivers/net/usb/cdc_ether.c b/drivers/net/usb/cdc_ether.c
+index 544c309..043d796 100644
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -633,7 +633,17 @@ static const struct usb_device_id	products [] = {
+ 	.bInterfaceProtocol	= 255,
+ 	.driver_info = (unsigned long)&wwan_info,
+ },
+-	{ },		// END
++/*
++{
++	.match_flags    =   USB_DEVICE_ID_MATCH_VENDOR
++		 | USB_DEVICE_ID_MATCH_PRODUCT,
++	.idProduct		= 0x1001,
++	.idVendor               = HUAWEI_VENDOR_ID,
++	.bInterfaceProtocol	= 255,
++	.driver_info = (unsigned long)&wwan_info,
++},
++*/
++{ },		// END
+ };
+ MODULE_DEVICE_TABLE(usb, products);
+ 
+diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
+index dd225fc..b732730 100644
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -48,7 +48,7 @@
+ #include <linux/pm_runtime.h>
+ 
+ #define DRIVER_VERSION		"22-Aug-2005"
+-
++#define HUAWEI_VENDOR_ID    0x12d1
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+@@ -1470,6 +1470,12 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
+ 	// ok, it's ready to go.
+ 	usb_set_intfdata (udev, dev);
+ 
++/*	if (xdev->descriptor.idVendor == HUAWEI_VENDOR_ID) {
++		if (0 != (xdev->config->desc.bmAttributes & 0x20)) {
++			usb_enable_autosuspend(xdev);
++		}
++	}
++	*/
+ 	netif_device_attach (net);
+ 
+ 	if (dev->driver_info->flags & FLAG_LINK_INTR)
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 22411cc..5c90b67 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1600,6 +1600,7 @@ static struct usb_driver option_driver = {
+ #ifdef CONFIG_PM
+ 	.suspend    = usb_serial_suspend,
+ 	.resume     = usb_serial_resume,
++	.reset_resume = usb_serial_resume,
+ 	.supports_autosuspend =	1,
+ #endif
+ 	.id_table   = option_ids,
+@@ -1622,7 +1623,7 @@ static struct usb_serial_driver option_1port_device = {
+ 	.probe             = option_probe,
+ 	.open              = usb_wwan_open,
+ 	.close             = usb_wwan_close,
+-	.dtr_rts	   = usb_wwan_dtr_rts,
++	.dtr_rts	 	   = usb_wwan_dtr_rts,
+ 	.write             = usb_wwan_write,
+ 	.write_room        = usb_wwan_write_room,
+ 	.chars_in_buffer   = usb_wwan_chars_in_buffer,
+@@ -1759,6 +1760,13 @@ static int option_probe(struct usb_serial *serial,
+ 		serial->interface->cur_altsetting->desc.bInterfaceClass != USB_CLASS_CDC_DATA)
+ 		return -ENODEV;
+ 
++
++/*	if (serial->dev->descriptor.idVendor == HUAWEI_VENDOR_ID) {
++		if (0 != (serial->dev->config->desc.bmAttributes & 0x20)) {
++			usb_enable_autosuspend(serial->dev);
++		}
++	}
++*/
+ 	data = serial->private = kzalloc(sizeof(struct usb_wwan_intf_private), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+diff --git a/drivers/usb/serial/usb_wwan.c b/drivers/usb/serial/usb_wwan.c
+index 746ed3b..b00328e9 100644
+--- a/drivers/usb/serial/usb_wwan.c
++++ b/drivers/usb/serial/usb_wwan.c
+@@ -254,7 +254,6 @@ int usb_wwan_write(struct tty_struct *tty, struct usb_serial_port *port,
+             ep = usb_pipe_endpoint(this_urb->dev, this_urb->pipe);
+             if( ep && ( 0 != this_urb->transfer_buffer_length ) && ( 0 == this_urb->transfer_buffer_length % ep->desc.wMaxPacketSize ) )
+             {
+-                printk( "Ok, I am adding flag URB_ZERO_PACKET\n" );
+                 this_urb->transfer_flags |= URB_ZERO_PACKET;
+             }
+         }
+diff --git a/include/linux/mu509.h b/include/linux/mu509.h
+new file mode 100644
+index 0000000..0783b5f
+--- /dev/null
++++ b/include/linux/mu509.h
+@@ -0,0 +1,23 @@
++#include <linux/types.h>
++#include <linux/ioctl.h>
++#include <linux/miscdevice.h>
++
++struct modem_dev
++{
++	const char *name;
++	struct miscdevice miscdev;
++	struct work_struct work;
++};
++
++struct mu509_data {
++	int (*io_init)(void);
++	int (*io_deinit)(void);
++	unsigned int bp_power;
++	unsigned int bp_power_active_low;
++	unsigned int bp_reset;
++	unsigned int bp_reset_active_low;
++	unsigned int bp_wakeup_ap;
++	unsigned int ap_wakeup_bp;
++};
++
++#define MODEM_NAME "mu509"

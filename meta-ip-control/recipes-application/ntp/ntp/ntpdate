@@ -1,0 +1,5 @@
+# Configuration script used by ntpdate-sync script
+NTPSERVERS="ntp.imag.fr"
+
+# Set to "yes" to write time to hardware clock on success
+UPDATE_HWCLOCK="yes"
