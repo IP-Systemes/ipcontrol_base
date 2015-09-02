@@ -22,6 +22,7 @@ hob-image-*.bb
 !meta-fsl-arm-extra
 !meta-ip-control
 !meta-openembedded
+!meta-openembedded/*
 bitbake/doc/manual/html/
 bitbake/doc/manual/pdf/
 bitbake/doc/manual/txt/
