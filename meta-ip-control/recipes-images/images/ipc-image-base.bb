@@ -6,6 +6,8 @@ LICENSE = "MIT"
 
 inherit core-image
 
+
+DISTRO_FEATURES += "pulseaudio"
 DISTRO_TYPE += "debug"
 
 SOC_EXTRA_IMAGE_FEATURES ?= ""
@@ -15,8 +17,6 @@ EXTRA_IMAGE_FEATURES += " \
     ${SOC_EXTRA_IMAGE_FEATURES} \
     nfs-server \
 "
-
-module_autoload_ipe-tor-driver = "ipe-tor-driver"
 
 SOC_IMAGE_INSTALL = ""
 
@@ -30,7 +30,9 @@ IMAGE_INSTALL += " \
     cronie \
     minicom \
     iptables \
-    php php-cli php-cgi php-fpm php-fpm-apache2 php-pear \
+    php php-cli php-cgi php-fpm php-fpm-apache2 php-pear php-dev \
+    imx-kobs \
+    tcf-agent \
     inetutils \
     inetutils-ftp \
     openssh-sftp-server \
@@ -38,15 +40,26 @@ IMAGE_INSTALL += " \
     ethtool \
     i2c-tools \
     curl \
+    strace \
     gnokii \
+    flashrom \
     proftpd \
     ntp ntpdate \
     libmodbus \
+    testmodbus \
     ipsec-tools \
     openvpn \
+    log4cpp \
+    mtd-utils \
+    mtd-utils-ubifs \
+    apache2 \
     ppp ppp-oe ppp-tools \
     ppp-dialin \
-    inadyn-mt \
+    quota \
+    watchdog \
+    sudo \
+    tcpdump \
+	tzdata \
    "
 
 export IMAGE_BASENAME = "ipc-image-base"

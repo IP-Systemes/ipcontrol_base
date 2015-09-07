@@ -1,0 +1,3 @@
+[submodule "meta-ip-internals"]
+	path = meta-ip-internals
+	url = ssh://gitolite@collaborative.4-citizens.fr/ip-control/meta-ip-internals.git
