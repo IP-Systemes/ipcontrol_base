@@ -3,6 +3,7 @@
 # OE Build Environment Setup Script
 #
 # Copyright (C) 2006-2011 Linux Foundation
+# Copyright (C) 2015 4-Citizens SAS
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -96,6 +97,12 @@ which can be found at:
 For more information about OpenEmbedded see their website:
     http://www.openembedded.org/
 
+Specific code for IP-Control hardware is developped and maintained by 4-Citizens SAS
+for IP-Systèmes company.
+
+For any question/information please contact:
+	contact@ip-systemes.fr
+	
 
 EOM
 

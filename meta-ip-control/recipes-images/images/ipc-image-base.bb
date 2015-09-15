@@ -60,6 +60,7 @@ IMAGE_INSTALL += " \
     sudo \
     tcpdump \
 	tzdata \
+	lua5.1 \
    "
 
 export IMAGE_BASENAME = "ipc-image-base"

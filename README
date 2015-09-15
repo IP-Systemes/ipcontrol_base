@@ -47,3 +47,13 @@ repository.
 
 Note: The scripts directory should be treated with extra care as it is a mix
       of oe-core and poky-specific files.
+
+IP-Control Spécific Code
+========================
+
+Specific code for IP-Control hardware is developped and maintained by 4-Citizens SAS
+for IP-Systèmes company.
+
+For any question/information please contact:
+	contact@ip-systemes.fr
+	
