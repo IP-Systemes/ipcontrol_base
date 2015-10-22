@@ -62,6 +62,7 @@ do_install() {
 }
 
 BBCLASSEXTEND = "nativesdk"
+BBCLASSEXTEND += "native"
 
 #DEPENDS = "cross-linkage"
 RDEPENDS_${PN}-dev = ""

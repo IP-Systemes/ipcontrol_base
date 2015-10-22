@@ -36,3 +36,19 @@ UBI_VOLNAME  = "rootfs"
 #MKUBIFS_ARGS = " -m 2048 -e 126976 -c 3950 "
 MKUBIFS_ARGS = " -m 2048 -e 124KiB -c 3965 "
 UBINIZE_ARGS = " -m 2048 -p 128KiB -s 2048 -O 2048 "
+
+PREFERRED_PROVIDER_jpeg = "jpeg"
+PREFERRED_PROVIDER_java2-runtime = "openjdk-7-jre"
+PREFERRED_PROVIDER_java2-vm = "openjdk-7-jre"
+PREFERRED_PROVIDER_jpeg-native = "jpeg-native"
+
+PREFERRED_PROVIDER_virtual/java-initial = "cacao-initial"
+PREFERRED_PROVIDER_virtual/java-native = "jamvm-native"
+PREFERRED_PROVIDER_virtual/javac-native = "ecj-bootstrap-native"
+
+
+PREFERRED_VERSION_openjdk-7-jre = "25b30-2.3.12"
+PREFERRED_VERSION_icedtea7-native = "2.1.3"
+
+
+
