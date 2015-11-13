@@ -21,6 +21,7 @@ SRC_URI += "file://0001-Remove-GPIO5-20-button.patch \
 			file://0004-Add_SPI_MAX1113x.patch \
 			file://0005-MU509_UART5.patch \
 			file://0006-MU509-Device.patch \ 
+			file://0007-Nand_MTD_Struct.patch \ 
 "
 
 
