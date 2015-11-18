@@ -67,7 +67,6 @@ IMAGE_INSTALL += " \
 	python-dateutil \
 	python-pip \
 	python-compiler \
-	libpython2.7 \
 	python-email \
 	python-distutils \
 	python-image \
