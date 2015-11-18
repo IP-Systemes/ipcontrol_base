@@ -61,6 +61,17 @@ IMAGE_INSTALL += " \
     tcpdump \
 	tzdata \
 	lua5.1 \
+	python \
+	python-setuptools \
+	python-pygobject \
+	python-dateutil \
+	python-pip \
+	python-compiler \
+	libpython2.7 \
+	python-email \
+	python-distutils \
+	python-image \
+	python-audio \
    "
 
 export IMAGE_BASENAME = "ipc-image-base"
