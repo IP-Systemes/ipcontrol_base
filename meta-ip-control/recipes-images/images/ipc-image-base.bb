@@ -61,7 +61,6 @@ IMAGE_INSTALL += " \
     tcpdump \
 	tzdata \
 	lua5.1 \
-	python \
 	python-setuptools \
 	python-pygobject \
 	python-dateutil \
