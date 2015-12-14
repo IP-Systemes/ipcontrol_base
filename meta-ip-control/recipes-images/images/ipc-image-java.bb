@@ -59,8 +59,17 @@ IMAGE_INSTALL += " \
     watchdog \
     sudo \
     tcpdump \
-    tzdata \
-    lua5.1 \
+	tzdata \
+	lua5.1 \
+	python-setuptools \
+	python-pygobject \
+	python-dateutil \
+	python-pip \
+	python-compiler \
+	python-email \
+	python-distutils \
+	python-image \
+	python-audio \
     openjdk-7-jre openjdk-7-vm-jamvm openjdk-7-vm-cacao \
     strace dropbear binutils \
     classpath \
