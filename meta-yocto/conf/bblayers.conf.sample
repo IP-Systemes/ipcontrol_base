@@ -12,6 +12,7 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-fsl-arm \
   ##OEROOT##/meta-fsl-arm-extra \
   ##OEROOT##/meta-ip-control \
+  ##OEROOT##/meta-ip-internals \
   ##OEROOT##/meta-openembedded/meta-oe \
   ##OEROOT##/meta-openembedded/meta-webserver \
   ##OEROOT##/meta-openembedded/meta-initramfs \
